@@ -15,7 +15,7 @@ data = {
     'current': np.random.uniform(0.1, 2.0, 1200),
     'temperature': np.random.uniform(22, 45, 1200),
     'humidity': np.random.uniform(30, 70, 1200),
-    'vibration': np.random.uniform(0.0, 1.0, 1200)
+    'vibration': 0.5 * np.sin(np.linspace(0, 20 * np.pi, 1200)) + np.random.normal(0, 0.05, 1200)  # Sine wave pattern with noise, range -0.5 to 0.5
 }
 
 # Introduce more abnormal data points as patterns
@@ -51,7 +51,7 @@ df['is_abnormal'] = (
     (df['current'] > 2.0) |
     (df['temperature'] > 45) |
     (df['humidity'] > 70) |
-    (df['vibration'] > 1.0)
+    (df['vibration'] > 0.5) | (df['vibration'] < -0.5)
 )
 
 # Device ID selection
@@ -72,7 +72,7 @@ predicted_voltage = np.random.uniform(210, 230)
 predicted_current = np.random.uniform(0.1, 2.0)
 predicted_temperature = np.random.uniform(22, 45)
 predicted_humidity = np.random.uniform(30, 70)
-predicted_vibration = np.random.uniform(0.0, 1.0)
+predicted_vibration = np.random.uniform(-0.5, 0.5)
 
 # Calculate the percentage of abnormal data points
 total_points = len(filtered_df)
@@ -85,7 +85,7 @@ voltage_health = 100 - (filtered_df['voltage'] > 230).sum() / total_points * 100
 current_health = 100 - (filtered_df['current'] > 2.0).sum() / total_points * 100
 temperature_health = 100 - (filtered_df['temperature'] > 45).sum() / total_points * 100
 humidity_health = 100 - (filtered_df['humidity'] > 70).sum() / total_points * 100
-vibration_health = 100 - (filtered_df['vibration'] > 1.0).sum() / total_points * 100
+vibration_health = 100 - ((filtered_df['vibration'] > 0.5) | (filtered_df['vibration'] < -0.5)).sum() / total_points * 100
 
 # Function to determine the color based on the percentage
 def get_color(percentage):
@@ -151,4 +151,4 @@ plot_and_display_stats(filtered_df, 'voltage', 'Voltage', 'V', cols[0], 100, 300
 plot_and_display_stats(filtered_df, 'current', 'Current', 'A', cols[1], 0, 5)
 plot_and_display_stats(filtered_df, 'temperature', 'Temperature', '°C', cols[2], 10, 50)
 plot_and_display_stats(filtered_df, 'humidity', 'Humidity', '%', cols[0], 0, 100)
-plot_and_display_stats(filtered_df, 'vibration', 'Vibration', 'G', cols[1], -1, 1)
+plot_and_display_stats(filtered_df, 'vibration', 'Vibration', 'G', cols[1], -0.5, 0.5)

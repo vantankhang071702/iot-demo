@@ -18,9 +18,9 @@ data = {
     'vibration': np.random.uniform(0.0, 1.0, 7200)
 }
 
-# Introduce abnormal data points as patterns
-pattern_length = 10  # Length of the abnormal pattern
-num_patterns = 5  # Number of patterns to introduce
+# Introduce more abnormal data points as patterns
+pattern_length = 50  # Length of the abnormal pattern
+num_patterns = 30  # Number of patterns to introduce
 
 for _ in range(num_patterns):
     start_index = np.random.randint(0, 7200 - pattern_length)
@@ -41,41 +41,6 @@ df['is_abnormal'] = (
     (df['temperature'] > 45) |
     (df['humidity'] > 70) |
     (df['vibration'] > 1.0)
-)
-
-# Set page background color to match the chart
-st.markdown(
-    """
-    <style>
-    .main {
-        background-color: #FFFFFF;
-        color: #000000;
-    }
-    .circle {
-        display: inline-block;
-        width: 150px;
-        height: 150px;
-        line-height: 1.5;
-        border-radius: 50%;
-        background-color: #1f77b4;
-        color: white;
-        text-align: center;
-        font-size: 18px;
-        margin: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        padding: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-    }
-    .circle span {
-        display: block;
-        font-size: 14px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
 )
 
 # Device ID selection
@@ -102,12 +67,22 @@ predicted_temperature = np.random.uniform(22, 45)
 predicted_humidity = np.random.uniform(30, 70)
 predicted_vibration = np.random.uniform(0.0, 1.0)
 
-# Display predictions with circular metrics
-st.sidebar.markdown("<div class='circle'>Voltage<br><span>{:.2f} V</span></div>".format(predicted_voltage), unsafe_allow_html=True)
-st.sidebar.markdown("<div class='circle'>Current<br><span>{:.2f} A</span></div>".format(predicted_current), unsafe_allow_html=True)
-st.sidebar.markdown("<div class='circle'>Temperature<br><span>{:.2f} °C</span></div>".format(predicted_temperature), unsafe_allow_html=True)
-st.sidebar.markdown("<div class='circle'>Humidity<br><span>{:.2f} %</span></div>".format(predicted_humidity), unsafe_allow_html=True)
-st.sidebar.markdown("<div class='circle'>Vibration<br><span>{:.2f} G</span></div>".format(predicted_vibration), unsafe_allow_html=True)
+# Calculate the percentage of abnormal data points
+total_points = len(filtered_df)
+abnormal_points = filtered_df['is_abnormal'].sum()
+abnormal_percentage = (abnormal_points / total_points) * 100
+health_percentage = 100 - abnormal_percentage
+
+# Display health status with a progress bar
+st.sidebar.markdown("### Device Health Status")
+st.sidebar.progress(health_percentage / 100)
+
+# Display predictions
+st.sidebar.markdown(f"**Voltage:** {predicted_voltage:.2f} V")
+st.sidebar.markdown(f"**Current:** {predicted_current:.2f} A")
+st.sidebar.markdown(f"**Temperature:** {predicted_temperature:.2f} °C")
+st.sidebar.markdown(f"**Humidity:** {predicted_humidity:.2f} %")
+st.sidebar.markdown(f"**Vibration:** {predicted_vibration:.2f} G")
 
 def plot_and_display_stats(df, y_column, title, unit):
     y_axis_title = f"{title} ({unit})"

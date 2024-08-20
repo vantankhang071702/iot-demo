@@ -53,15 +53,25 @@ st.markdown(
     }
     .circle {
         display: inline-block;
-        width: 60px;
-        height: 60px;
-        line-height: 60px;
+        width: 150px;
+        height: 150px;
+        line-height: 1.5;
         border-radius: 50%;
         background-color: #1f77b4;
         color: white;
         text-align: center;
-        font-size: 16px;
+        font-size: 18px;
         margin: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    .circle span {
+        display: block;
+        font-size: 14px;
     }
     </style>
     """,
@@ -73,7 +83,7 @@ selected_device_id = st.sidebar.selectbox('Select Device ID', device_names)
 
 # Main content
 t1, t2 = st.columns((3, 2))
-t1.title("Predictive Maintenance Tool")
+t1.title("Device's health chart")
 t1.markdown(f"<h3 style='font-size: 16px;'>Device: {selected_device_id}</h3>", unsafe_allow_html=True)
 
 # Date range selection
@@ -92,26 +102,12 @@ predicted_temperature = np.random.uniform(22, 45)
 predicted_humidity = np.random.uniform(30, 70)
 predicted_vibration = np.random.uniform(0.0, 1.0)
 
-# Display predictions with progress bars
-st.sidebar.markdown("### Voltage")
-st.sidebar.progress((predicted_voltage - 210) / (230 - 210))
-st.sidebar.markdown(f"{predicted_voltage:.2f} V")
-
-st.sidebar.markdown("### Current")
-st.sidebar.progress((predicted_current - 0.1) / (2.0 - 0.1))
-st.sidebar.markdown(f"{predicted_current:.2f} A")
-
-st.sidebar.markdown("### Temperature")
-st.sidebar.progress((predicted_temperature - 22) / (45 - 22))
-st.sidebar.markdown(f"{predicted_temperature:.2f} °C")
-
-st.sidebar.markdown("### Humidity")
-st.sidebar.progress((predicted_humidity - 30) / (70 - 30))
-st.sidebar.markdown(f"{predicted_humidity:.2f} %")
-
-st.sidebar.markdown("### Vibration")
-st.sidebar.progress((predicted_vibration - 0.0) / (1.0 - 0.0))
-st.sidebar.markdown(f"{predicted_vibration:.2f} G")
+# Display predictions with circular metrics
+st.sidebar.markdown("<div class='circle'>Voltage<br><span>{:.2f} V</span></div>".format(predicted_voltage), unsafe_allow_html=True)
+st.sidebar.markdown("<div class='circle'>Current<br><span>{:.2f} A</span></div>".format(predicted_current), unsafe_allow_html=True)
+st.sidebar.markdown("<div class='circle'>Temperature<br><span>{:.2f} °C</span></div>".format(predicted_temperature), unsafe_allow_html=True)
+st.sidebar.markdown("<div class='circle'>Humidity<br><span>{:.2f} %</span></div>".format(predicted_humidity), unsafe_allow_html=True)
+st.sidebar.markdown("<div class='circle'>Vibration<br><span>{:.2f} G</span></div>".format(predicted_vibration), unsafe_allow_html=True)
 
 def plot_and_display_stats(df, y_column, title, unit):
     y_axis_title = f"{title} ({unit})"

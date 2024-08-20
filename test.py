@@ -4,7 +4,7 @@ import plotly.express as px
 import numpy as np
 
 # Set page configuration
-st.set_page_config(page_title="Device's health chart", page_icon="🔧", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Device's data chart", page_icon="🔧", layout="wide", initial_sidebar_state="expanded")
 
 # Mock data for multiple devices with a data point every hour for one month
 device_names = [f'MedDevice_{i:03d}' for i in range(10)]  # 10 devices with names like MedDevice_001, MedDevice_002, etc.
@@ -48,7 +48,7 @@ selected_device_id = st.sidebar.selectbox('Select Device ID', device_names)
 
 # Main content
 t1, t2 = st.columns((3, 2))
-t1.title("Device's health chart")
+t1.title("Device's data chart")
 t1.markdown(f"<h3 style='font-size: 16px;'>Device: {selected_device_id}</h3>", unsafe_allow_html=True)
 
 # Date range selection
@@ -73,9 +73,10 @@ abnormal_points = filtered_df['is_abnormal'].sum()
 abnormal_percentage = (abnormal_points / total_points) * 100
 health_percentage = 100 - abnormal_percentage
 
-# Display health status with a progress bar
+# Display health status with a progress bar and percentage
 st.sidebar.markdown("### Device Health Status")
 st.sidebar.progress(health_percentage / 100)
+st.sidebar.markdown(f"**Health Percentage:** {health_percentage:.2f}%")
 
 # Display predictions
 st.sidebar.markdown(f"**Voltage:** {predicted_voltage:.2f} V")

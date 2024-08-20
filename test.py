@@ -3,6 +3,9 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
+# Set page configuration
+st.set_page_config(page_title="Device's health chart", page_icon="🔧", layout="wide", initial_sidebar_state="expanded")
+
 # Mock data for multiple devices with a data point every hour for one month
 device_names = [f'MedDevice_{i:03d}' for i in range(10)]  # 10 devices with names like MedDevice_001, MedDevice_002, etc.
 data = {
@@ -39,9 +42,6 @@ df['is_abnormal'] = (
     (df['humidity'] > 70) |
     (df['vibration'] > 1.0)
 )
-
-# Set page configuration
-st.set_page_config(page_title="Device's health chart", page_icon="🔧", layout="wide", initial_sidebar_state="expanded")
 
 # Set page background color to match the chart
 st.markdown(
@@ -115,6 +115,13 @@ st.sidebar.markdown(f"{predicted_vibration:.2f} G")
 
 def plot_and_display_stats(df, y_column, title, unit):
     y_axis_title = f"{title} ({unit})"
+    
+    # Check for abnormal points and display warning if necessary
+    abnormal_points = df[df['is_abnormal']]
+    if not abnormal_points.empty:
+        st.warning(f"Warning: Detected abnormal points in {title}.")
+    
+    # Plot the chart
     fig = px.line(df, x='datetime', y=y_column, title=f'{title} Over Time', height=500)  # Set chart height
     fig.update_traces(line=dict(color='#1f77b4'), mode='lines')  # Set line color to soft blue and remove markers
     fig.update_layout(
@@ -128,7 +135,6 @@ def plot_and_display_stats(df, y_column, title, unit):
     fig.update_xaxes(rangeslider=dict(visible=True))
     
     # Highlight abnormal points
-    abnormal_points = df[df['is_abnormal']]
     fig.add_scatter(x=abnormal_points['datetime'], y=abnormal_points[y_column], mode='markers', marker=dict(color='red', size=10), name='Abnormal Points')
     
     st.plotly_chart(fig, use_container_width=True)

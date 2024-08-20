@@ -31,6 +31,17 @@ for _ in range(num_patterns):
     data['humidity'][start_index:end_index] = np.linspace(80, 90, pattern_length)  # Humidity pattern
     data['vibration'][start_index:end_index] = np.linspace(1.5, 2.0, pattern_length)  # Vibration pattern
 
+# Introduce 50% abnormalities for the first device
+abnormal_device_index = device_names.index('MedDevice_001')
+abnormal_start_index = abnormal_device_index * 120
+abnormal_end_index = abnormal_start_index + 60  # 50% of 120 data points
+
+data['voltage'][abnormal_start_index:abnormal_end_index] = np.linspace(240, 250, 60)
+data['current'][abnormal_start_index:abnormal_end_index] = np.linspace(2.5, 3.0, 60)
+data['temperature'][abnormal_start_index:abnormal_end_index] = np.linspace(50, 60, 60)
+data['humidity'][abnormal_start_index:abnormal_end_index] = np.linspace(80, 90, 60)
+data['vibration'][abnormal_start_index:abnormal_end_index] = np.linspace(1.5, 2.0, 60)
+
 # Convert to DataFrame
 df = pd.DataFrame(data)
 
@@ -48,7 +59,6 @@ selected_device_id = st.sidebar.selectbox('Select Device ID', device_names)
 
 # Main content
 t1, t2 = st.columns((3, 2))
-t1.title("Device's data chart")
 
 # Date range selection
 start_date = st.sidebar.date_input("Start date", df['datetime'].min())
@@ -77,31 +87,33 @@ temperature_health = 100 - (filtered_df['temperature'] > 45).sum() / total_point
 humidity_health = 100 - (filtered_df['humidity'] > 70).sum() / total_points * 100
 vibration_health = 100 - (filtered_df['vibration'] > 1.0).sum() / total_points * 100
 
+# Function to determine the color based on the percentage
+def get_color(percentage):
+    if percentage < 35:
+        return "red"
+    elif percentage < 50:
+        return "yellow"
+    else:
+        return "blue"
+
 # Display health status with progress bars
+def display_progress_bar(label, value):
+    color = get_color(value)
+    st.sidebar.markdown(f"**{label}**")
+    progress_bar = st.sidebar.progress(0)
+    for i in range(int(value) + 1):
+        progress_bar.progress(i)
+    st.sidebar.markdown(f"<div style='text-align: right; color: black;'>{value:.2f}%</div>", unsafe_allow_html=True)
+
 st.sidebar.markdown("### Device Health Status")
-st.sidebar.progress(health_percentage / 100)
-st.sidebar.markdown(f"**Overall Health Percentage:** {health_percentage:.2f}%")
+display_progress_bar("Overall Health Percentage", health_percentage)
 
 st.sidebar.markdown("### Parameter Health Status")
-st.sidebar.markdown("**Voltage Health**")
-st.sidebar.progress(voltage_health / 100)
-st.sidebar.markdown(f"{voltage_health:.2f}%")
-
-st.sidebar.markdown("**Current Health**")
-st.sidebar.progress(current_health / 100)
-st.sidebar.markdown(f"{current_health:.2f}%")
-
-st.sidebar.markdown("**Temperature Health**")
-st.sidebar.progress(temperature_health / 100)
-st.sidebar.markdown(f"{temperature_health:.2f}%")
-
-st.sidebar.markdown("**Humidity Health**")
-st.sidebar.progress(humidity_health / 100)
-st.sidebar.markdown(f"{humidity_health:.2f}%")
-
-st.sidebar.markdown("**Vibration Health**")
-st.sidebar.progress(vibration_health / 100)
-st.sidebar.markdown(f"{vibration_health:.2f}%")
+display_progress_bar("Voltage Health", voltage_health)
+display_progress_bar("Current Health", current_health)
+display_progress_bar("Temperature Health", temperature_health)
+display_progress_bar("Humidity Health", humidity_health)
+display_progress_bar("Vibration Health", vibration_health)
 
 def plot_and_display_stats(df, y_column, title, unit, col, y_min, y_max):
     y_axis_title = f"{title} ({unit})"
@@ -126,8 +138,8 @@ def plot_and_display_stats(df, y_column, title, unit, col, y_min, y_max):
     )
     fig.update_xaxes(rangeslider=dict(visible=True))
     
-    # Highlight abnormal points
-    fig.add_scatter(x=abnormal_points['datetime'], y=abnormal_points[y_column], mode='markers', marker=dict(color='red', size=10), name='Abnormal Points')
+    # Highlight abnormal points with smaller size
+    fig.add_scatter(x=abnormal_points['datetime'], y=abnormal_points[y_column], mode='markers', marker=dict(color='red', size=2), name='Abnormal Points')
     
     col.plotly_chart(fig, use_container_width=True)
 

@@ -41,7 +41,7 @@ df['is_abnormal'] = (
 )
 
 # Set page configuration
-st.set_page_config(page_title="Predictive Maintenance Tool", page_icon="🔧", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Device's health chart", page_icon="🔧", layout="wide", initial_sidebar_state="expanded")
 
 # Set page background color to match the chart
 st.markdown(
